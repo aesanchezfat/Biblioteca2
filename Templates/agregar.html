@@ -32,7 +32,7 @@
 
                 <div class="card-body">
 
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
 
                         <div class="mb-3">
 
@@ -96,6 +96,22 @@
                                 name="cantidad"
                                 min="1"
                                 required>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Portada (Imagen)
+
+                            </label>
+
+                            <input
+                                type="file"
+                                class="form-control"
+                                name="imagen"
+                                accept="image/*">
 
                         </div>
 

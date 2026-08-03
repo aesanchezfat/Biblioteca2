@@ -72,6 +72,8 @@
 
                     <tr>
 
+                        <th>Portada</th>
+
                         <th>Título</th>
 
                         <th>Autor</th>
@@ -92,6 +94,14 @@
 
                     <tr>
 
+                        <td>
+                            {% if libro.imagen %}
+                            <img src="/Static/uploads/{{ libro.imagen }}" alt="{{ libro.titulo }}" style="max-width: 60px; max-height: 80px; object-fit: cover;" class="img-thumbnail">
+                            {% else %}
+                            <span class="text-muted">Sin portada</span>
+                            {% endif %}
+                        </td>
+
                         <td>{{ libro.titulo }}</td>
 
                         <td>{{ libro.autor }}</td>
@@ -102,7 +112,7 @@
 
                         <td>
 
-                            {% if libro.disponibles > 0 %}
+                            {% if libro.disponibles > 0 and libro.id not in libros_prestados_ids %}
 
                             <a
                                 href="/prestar/{{ libro.id }}"
@@ -114,6 +124,8 @@
 
                             {% endif %}
 
+                            {% if libro.id in libros_prestados_ids %}
+
                             <a
                                 href="/devolver/{{ libro.id }}"
                                 class="btn btn-warning btn-sm">
@@ -121,6 +133,8 @@
                                 Devolver
 
                             </a>
+
+                            {% endif %}
 
                             {% if admin %}
 

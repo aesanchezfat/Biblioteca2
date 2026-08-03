@@ -17,6 +17,12 @@ class BibliotecaTests(unittest.TestCase):
             biblioteca_app.db.drop_all()
             biblioteca_app.db.create_all()
 
+            usuario = biblioteca_app.Usuario(
+                usuario="andre",
+                password="1234",
+                admin=False,
+            )
+
             libro = biblioteca_app.Libro(
                 titulo="Test",
                 autor="Autor",
@@ -24,8 +30,11 @@ class BibliotecaTests(unittest.TestCase):
                 disponibles=1,
                 prestados=0,
             )
+            biblioteca_app.db.session.add(usuario)
             biblioteca_app.db.session.add(libro)
             biblioteca_app.db.session.commit()
+
+        self.client.post("/", data={"usuario": "andre", "password": "1234"})
 
     def test_devolver_sin_prestar_no_cambia_disponibilidad(self):
         with self.app.app_context():

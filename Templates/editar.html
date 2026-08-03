@@ -29,7 +29,7 @@
 
                 <div class="card-body">
 
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
 
                         <label>Título</label>
 
@@ -66,6 +66,20 @@
                             name="cantidad"
                             value="{{ libro.disponibles }}"
                             required>
+
+                        <label>Portada (Imagen)</label>
+
+                        {% if libro.imagen %}
+                        <div class="mb-2">
+                            <img src="/Static/uploads/{{ libro.imagen }}" alt="{{ libro.titulo }}" style="max-width: 100px; max-height: 120px; object-fit: cover;" class="img-thumbnail d-block">
+                        </div>
+                        {% endif %}
+
+                        <input
+                            class="form-control mb-3"
+                            type="file"
+                            name="imagen"
+                            accept="image/*">
 
                         <button
                             class="btn btn-warning w-100">
