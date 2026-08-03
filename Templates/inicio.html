@@ -19,7 +19,7 @@
     <div class="container">
 
         <span class="navbar-brand mb-0 h1">
-            📚 Biblioteca UNIBE
+            Biblioteca UNIBE
         </span>
 
         <div>
@@ -47,7 +47,7 @@
     <div class="mb-4">
 
         <a href="/agregar" class="btn btn-success">
-            ➕ Agregar Libro
+            Agregar Libro
         </a>
 
     </div>
@@ -82,6 +82,10 @@
 
                         <th>Disponibles</th>
 
+                        {% if admin %}
+                        <th>Prestado a</th>
+                        {% endif %}
+
                         <th>Acciones</th>
 
                     </tr>
@@ -110,7 +114,29 @@
 
                         <td>{{ libro.disponibles }}</td>
 
+                        {% if admin %}
                         <td>
+                            {% if libro.prestamos %}
+                                {% for p in libro.prestamos %}
+                                    <span class="badge bg-info text-dark">{{ p.usuario.usuario }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted small">Disponible / Nadie</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm text-white"
+                                data-bs-toggle="modal"
+                                data-bs-target="#sinopsisModal{{ libro.id }}">
+
+                                Sinopsis
+
+                            </button>
 
                             {% if libro.disponibles > 0 and libro.id not in libros_prestados_ids %}
 
@@ -157,6 +183,62 @@
 
                             {% endif %}
 
+                            <!-- Modal de Sinopsis -->
+                            <div class="modal fade" id="sinopsisModal{{ libro.id }}" tabindex="-1" aria-labelledby="sinopsisModalLabel{{ libro.id }}" aria-hidden="true">
+
+                                <div class="modal-dialog modal-dialog-centered">
+
+                                    <div class="modal-content">
+
+                                        <div class="modal-header bg-primary text-white">
+
+                                            <h5 class="modal-title" id="sinopsisModalLabel{{ libro.id }}">
+
+                                                {{ libro.titulo }}
+
+                                            </h5>
+
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                                        </div>
+
+                                        <div class="modal-body text-dark">
+
+                                            {% if libro.imagen %}
+                                            <div class="text-center mb-3">
+                                                <img src="/Static/uploads/{{ libro.imagen }}" alt="{{ libro.titulo }}" class="img-fluid rounded shadow" style="max-height: 200px;">
+                                            </div>
+                                            {% endif %}
+
+                                            <p class="mb-1"><strong>Autor:</strong> {{ libro.autor }}</p>
+                                            <p class="mb-1"><strong>ISBN:</strong> {{ libro.isbn }}</p>
+                                            <p class="mb-3"><strong>Disponibles:</strong> {{ libro.disponibles }}</p>
+
+                                            <hr>
+
+                                            <h6 class="fw-bold">Sinopsis:</h6>
+                                            <p class="text-secondary" style="white-space: pre-line;">
+                                                {{ libro.sinopsis if libro.sinopsis else 'No hay sinopsis registrada para este libro.' }}
+                                            </p>
+
+                                        </div>
+
+                                        <div class="modal-footer">
+
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+
+                                            {% if libro.disponibles > 0 and libro.id not in libros_prestados_ids %}
+                                            <a href="/prestar/{{ libro.id }}" class="btn btn-primary">Prestar este libro</a>
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
                         </td>
 
                     </tr>
@@ -181,7 +263,82 @@
 
     </div>
 
+    {% if admin %}
+
+    <div class="card shadow mt-4 mb-5">
+
+        <div class="card-header bg-secondary text-white fw-bold">
+
+            Registro de Préstamos Activos (Administrador)
+
+        </div>
+
+        <div class="card-body">
+
+            {% if todos_los_prestamos %}
+
+            <table class="table table-striped align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Usuario</th>
+
+                        <th>Libro Prestado</th>
+
+                        <th>Autor</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for p in todos_los_prestamos %}
+
+                    <tr>
+
+                        <td>
+                            <strong class="text-primary">{{ p.usuario.usuario }}</strong>
+                        </td>
+
+                        <td>
+                            {% if p.libro.imagen %}
+                            <img src="/Static/uploads/{{ p.libro.imagen }}" alt="{{ p.libro.titulo }}" style="max-width: 40px; max-height: 50px; object-fit: cover;" class="img-thumbnail me-2">
+                            {% endif %}
+                            {{ p.libro.titulo }}
+                        </td>
+
+                        <td>{{ p.libro.autor }}</td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="alert alert-secondary mb-0">
+
+                No hay préstamos activos registrados actualmente.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

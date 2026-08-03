@@ -35,12 +35,16 @@ class Libro(db.Model):
     disponibles = db.Column(db.Integer)
     prestados = db.Column(db.Integer, default=0)
     imagen = db.Column(db.String(255), nullable=True)
+    sinopsis = db.Column(db.Text, nullable=True)
 
 
 class Prestamo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuario.id"), nullable=False)
     libro_id = db.Column(db.Integer, db.ForeignKey("libro.id"), nullable=False)
+
+    usuario = db.relationship("Usuario", backref="prestamos")
+    libro = db.relationship("Libro", backref="prestamos")
 
 
 # -------------------------
@@ -113,12 +117,17 @@ def inicio():
         prestamos = Prestamo.query.filter_by(usuario_id=user.id).all()
         libros_prestados_ids = [p.libro_id for p in prestamos]
 
+    todos_los_prestamos = []
+    if session.get("admin"):
+        todos_los_prestamos = Prestamo.query.all()
+
     return render_template(
         "inicio.html",
         libros=libros,
         admin=session["admin"],
         usuario=session["usuario"],
-        libros_prestados_ids=libros_prestados_ids
+        libros_prestados_ids=libros_prestados_ids,
+        todos_los_prestamos=todos_los_prestamos
     )
 
 
@@ -150,6 +159,7 @@ def agregar():
             autor=request.form["autor"],
             isbn=request.form["isbn"],
             disponibles=int(request.form["cantidad"]),
+            sinopsis=request.form.get("sinopsis", ""),
             prestados=0,
             imagen=imagen_filename
         )
@@ -246,6 +256,7 @@ def editar(id):
         libro.autor = request.form["autor"]
         libro.isbn = request.form["isbn"]
         libro.disponibles = int(request.form["cantidad"])
+        libro.sinopsis = request.form.get("sinopsis", "")
 
         if "imagen" in request.files:
             file = request.files["imagen"]
