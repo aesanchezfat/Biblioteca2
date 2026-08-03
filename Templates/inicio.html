@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Biblioteca UNIBE</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-primary">
+
+    <div class="container">
+
+        <span class="navbar-brand mb-0 h1">
+            📚 Biblioteca UNIBE
+        </span>
+
+        <div>
+
+            <span class="text-white me-3">
+
+                Bienvenido <strong>{{ usuario }}</strong>
+
+            </span>
+
+            <a href="/logout" class="btn btn-light">
+                Cerrar sesión
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<div class="container mt-5">
+
+    {% if admin %}
+
+    <div class="mb-4">
+
+        <a href="/agregar" class="btn btn-success">
+            ➕ Agregar Libro
+        </a>
+
+    </div>
+
+    {% endif %}
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            Catálogo de Libros
+
+        </div>
+
+        <div class="card-body">
+
+            {% if libros %}
+
+            <table class="table table-striped table-hover">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Título</th>
+
+                        <th>Autor</th>
+
+                        <th>ISBN</th>
+
+                        <th>Disponibles</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for libro in libros %}
+
+                    <tr>
+
+                        <td>{{ libro.titulo }}</td>
+
+                        <td>{{ libro.autor }}</td>
+
+                        <td>{{ libro.isbn }}</td>
+
+                        <td>{{ libro.disponibles }}</td>
+
+                        <td>
+
+                            {% if libro.disponibles > 0 %}
+
+                            <a
+                                href="/prestar/{{ libro.id }}"
+                                class="btn btn-primary btn-sm">
+
+                                Prestar
+
+                            </a>
+
+                            {% endif %}
+
+                            <a
+                                href="/devolver/{{ libro.id }}"
+                                class="btn btn-warning btn-sm">
+
+                                Devolver
+
+                            </a>
+
+                            {% if admin %}
+
+                            <a
+                                href="/editar/{{ libro.id }}"
+                                class="btn btn-success btn-sm">
+
+                                Editar
+
+                            </a>
+
+                            <a
+                                href="/eliminar/{{ libro.id }}"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('¿Eliminar este libro?');">
+
+                                Eliminar
+
+                            </a>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+                <div class="alert alert-info">
+
+                    No hay libros registrados.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
