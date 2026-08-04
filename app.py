@@ -44,6 +44,8 @@ class Prestamo(db.Model):
 
 with app.app_context():
     db.create_all()
+
+    # Migración automática de columnas
     from sqlalchemy import inspect, text
     inspector = inspect(db.engine)
     if "libro" in inspector.get_table_names():
