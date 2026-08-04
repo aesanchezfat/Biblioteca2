@@ -49,11 +49,27 @@ class Prestamo(db.Model):
 
 
 # -------------------------
-# CREAR BASE DE DATOS
+# CREAR Y MIGRAR BASE DE DATOS
 # -------------------------
 
 with app.app_context():
     db.create_all()
+
+    # Migración automática de columnas para bases de datos SQLite existentes
+    from sqlalchemy import inspect, text
+    inspector = inspect(db.engine)
+    if "libro" in inspector.get_table_names():
+        columns = [c["name"] for c in inspector.get_columns("libro")]
+        with db.engine.connect() as conn:
+            if "prestados" not in columns:
+                conn.execute(text("ALTER TABLE libro ADD COLUMN prestados INTEGER DEFAULT 0"))
+            if "imagen" not in columns:
+                conn.execute(text("ALTER TABLE libro ADD COLUMN imagen VARCHAR(255)"))
+            if "sinopsis" not in columns:
+                conn.execute(text("ALTER TABLE libro ADD COLUMN sinopsis TEXT"))
+            if "reporte" not in columns:
+                conn.execute(text("ALTER TABLE libro ADD COLUMN reporte TEXT"))
+            conn.commit()
 
     if Usuario.query.count() == 0:
         admin = Usuario(
