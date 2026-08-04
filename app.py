@@ -15,11 +15,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 db = SQLAlchemy(app)
 
-
-# -------------------------
-# MODELOS
-# -------------------------
-
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario = db.Column(db.String(30), unique=True)
@@ -47,15 +42,8 @@ class Prestamo(db.Model):
     usuario = db.relationship("Usuario", backref="prestamos")
     libro = db.relationship("Libro", backref="prestamos")
 
-
-# -------------------------
-# CREAR Y MIGRAR BASE DE DATOS
-# -------------------------
-
 with app.app_context():
     db.create_all()
-
-    # Migración automática de columnas para bases de datos SQLite existentes
     from sqlalchemy import inspect, text
     inspector = inspect(db.engine)
     if "libro" in inspector.get_table_names():
@@ -87,11 +75,15 @@ with app.app_context():
         db.session.add(admin)
         db.session.add(usuario)
         db.session.commit()
-
-
-# -------------------------
-# LOGIN
-# -------------------------
+    else:
+        if not Usuario.query.filter_by(usuario="admin").first():
+            admin = Usuario(
+                usuario="admin",
+                password="1234",
+                admin=True
+            )
+            db.session.add(admin)
+            db.session.commit()
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -114,11 +106,6 @@ def login():
         return "Usuario o contraseña incorrectos"
 
     return render_template("login.html")
-
-
-# -------------------------
-# INICIO
-# -------------------------
 
 @app.route("/inicio")
 def inicio():
@@ -146,11 +133,6 @@ def inicio():
         libros_prestados_ids=libros_prestados_ids,
         todos_los_prestamos=todos_los_prestamos
     )
-
-
-# -------------------------
-# CREAR USUARIO
-# -------------------------
 
 @app.route("/crear_usuario", methods=["GET", "POST"])
 def crear_usuario():
@@ -183,11 +165,6 @@ def crear_usuario():
         return redirect("/inicio")
 
     return render_template("crear_usuario.html")
-
-
-# -------------------------
-# AGREGAR LIBRO
-# -------------------------
 
 @app.route("/agregar", methods=["GET", "POST"])
 def agregar():
@@ -226,11 +203,6 @@ def agregar():
 
     return render_template("agregar.html")
 
-
-# -------------------------
-# PRESTAR
-# -------------------------
-
 @app.route("/prestar/<int:id>")
 def prestar(id):
 
@@ -250,11 +222,6 @@ def prestar(id):
             db.session.commit()
 
     return redirect("/inicio")
-
-
-# -------------------------
-# DEVOLVER
-# -------------------------
 
 @app.route("/devolver/<int:id>")
 def devolver(id):
@@ -278,11 +245,6 @@ def devolver(id):
 
     return redirect("/inicio")
 
-
-# -------------------------
-# REPORTAR INCIDENCIA
-# -------------------------
-
 @app.route("/reportar/<int:id>", methods=["GET", "POST"])
 def reportar(id):
 
@@ -303,21 +265,12 @@ def reportar(id):
 
     return render_template("reportar.html", libro=libro)
 
-
-# -------------------------
-# CERRAR SESIÓN
-# -------------------------
-
 @app.route("/logout")
 def logout():
 
     session.clear()
 
     return redirect("/")
-
-# -------------------------
-# EDITAR LIBRO
-# -------------------------
 
 @app.route("/editar/<int:id>", methods=["GET", "POST"])
 def editar(id):
@@ -352,10 +305,6 @@ def editar(id):
 
     return render_template("editar.html", libro=libro)
 
-# -------------------------
-# ELIMINAR LIBRO
-# -------------------------
-
 @app.route("/eliminar/<int:id>")
 def eliminar(id):
 
@@ -372,9 +321,5 @@ def eliminar(id):
 
     return redirect("/inicio")
 
-# -------------------------
-# EJECUTAR
-# -------------------------
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)
