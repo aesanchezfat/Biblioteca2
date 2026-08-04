@@ -55,7 +55,7 @@ class Prestamo(db.Model):
 with app.app_context():
     db.create_all()
 
-    # Migración automática de columnas para bases de datos SQLite existentes
+    # Migración automática de columnas
     from sqlalchemy import inspect, text
     inspector = inspect(db.engine)
     if "libro" in inspector.get_table_names():
@@ -387,4 +387,4 @@ def eliminar(id):
 # -------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)
