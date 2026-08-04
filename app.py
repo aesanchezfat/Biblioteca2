@@ -76,6 +76,7 @@ with app.app_context():
         db.session.add(usuario)
         db.session.commit()
     else:
+        # Asegurar que siempre exista el usuario admin
         if not Usuario.query.filter_by(usuario="admin").first():
             admin = Usuario(
                 usuario="admin",
@@ -84,6 +85,11 @@ with app.app_context():
             )
             db.session.add(admin)
             db.session.commit()
+
+
+# -------------------------
+# LOGIN
+# -------------------------
 
 @app.route("/", methods=["GET", "POST"])
 def login():
