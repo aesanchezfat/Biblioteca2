@@ -87,6 +87,16 @@ with app.app_context():
         db.session.add(admin)
         db.session.add(usuario)
         db.session.commit()
+    else:
+        # Asegurar que siempre exista el usuario admin
+        if not Usuario.query.filter_by(usuario="admin").first():
+            admin = Usuario(
+                usuario="admin",
+                password="1234",
+                admin=True
+            )
+            db.session.add(admin)
+            db.session.commit()
 
 
 # -------------------------
