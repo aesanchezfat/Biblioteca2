@@ -36,6 +36,7 @@ class Libro(db.Model):
     prestados = db.Column(db.Integer, default=0)
     imagen = db.Column(db.String(255), nullable=True)
     sinopsis = db.Column(db.Text, nullable=True)
+    reporte = db.Column(db.Text, nullable=True)
 
 
 class Prestamo(db.Model):
@@ -132,6 +133,43 @@ def inicio():
 
 
 # -------------------------
+# CREAR USUARIO
+# -------------------------
+
+@app.route("/crear_usuario", methods=["GET", "POST"])
+def crear_usuario():
+
+    if "usuario" not in session:
+        return redirect("/")
+
+    if not session["admin"]:
+        return "Solo el administrador puede crear usuarios."
+
+    if request.method == "POST":
+
+        nombre_usuario = request.form["usuario"].strip()
+        password = request.form["password"].strip()
+        es_admin = True if request.form.get("admin") else False
+
+        existente = Usuario.query.filter_by(usuario=nombre_usuario).first()
+        if existente:
+            return render_template("crear_usuario.html", error="El nombre de usuario ya existe.")
+
+        nuevo_usuario = Usuario(
+            usuario=nombre_usuario,
+            password=password,
+            admin=es_admin
+        )
+
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        return redirect("/inicio")
+
+    return render_template("crear_usuario.html")
+
+
+# -------------------------
 # AGREGAR LIBRO
 # -------------------------
 
@@ -160,6 +198,7 @@ def agregar():
             isbn=request.form["isbn"],
             disponibles=int(request.form["cantidad"]),
             sinopsis=request.form.get("sinopsis", ""),
+            reporte=request.form.get("reporte", ""),
             prestados=0,
             imagen=imagen_filename
         )
@@ -225,6 +264,31 @@ def devolver(id):
 
 
 # -------------------------
+# REPORTAR INCIDENCIA
+# -------------------------
+
+@app.route("/reportar/<int:id>", methods=["GET", "POST"])
+def reportar(id):
+
+    if "usuario" not in session:
+        return redirect("/")
+
+    if not session["admin"]:
+        return "Solo el administrador puede reportar incidencias."
+
+    libro = Libro.query.get_or_404(id)
+
+    if request.method == "POST":
+
+        libro.reporte = request.form.get("reporte", "").strip()
+        db.session.commit()
+
+        return redirect("/inicio")
+
+    return render_template("reportar.html", libro=libro)
+
+
+# -------------------------
 # CERRAR SESIÓN
 # -------------------------
 
@@ -257,6 +321,7 @@ def editar(id):
         libro.isbn = request.form["isbn"]
         libro.disponibles = int(request.form["cantidad"])
         libro.sinopsis = request.form.get("sinopsis", "")
+        libro.reporte = request.form.get("reporte", "")
 
         if "imagen" in request.files:
             file = request.files["imagen"]

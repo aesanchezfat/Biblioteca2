@@ -75,6 +75,14 @@
                             rows="3"
                             placeholder="Escribe un resumen o sinopsis del libro...">{{ libro.sinopsis if libro.sinopsis else '' }}</textarea>
 
+                        <label>Reporte de Incidencia / Estado</label>
+
+                        <textarea
+                            class="form-control mb-3"
+                            name="reporte"
+                            rows="2"
+                            placeholder="Describe qué le pasó al libro o su estado actual...">{{ libro.reporte if libro.reporte else '' }}</textarea>
+
                         <label>Portada (Imagen)</label>
 
                         {% if libro.imagen %}
